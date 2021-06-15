@@ -21,7 +21,7 @@ def userPosts(id):
 
     headers = CaseInsensitiveDict()
     headers["Content-Type"] = "application/json"
-    dictionary = {'typeOf':'Token 97df3c1257267b1331c2b3eda7e3c2db97a07ea3'}
+    dictionary = {'typeOf':'Token '+id}
     data = json.dumps(dictionary, indent=4)
     resp = requests.get(url, headers=headers, data=data)
     data = json.loads(resp.text)

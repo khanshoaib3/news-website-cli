@@ -46,7 +46,7 @@ def main():
 def getToken():
     if os.path.exists('.cred'):
         file = open('.cred','r')
-        return ""+file.read(0)
+        return ""+file.readline()
     else:
         return "notloggedin"
 
@@ -159,7 +159,8 @@ def menu():
                     elif choice == "3":
                         mesg = ["Loading..."]
                         printMenu(width=width, height=height, midW=midW, midH=midH, strList=mesg)
-                        data = posts.userPosts(""+getToken())
+                        token = getToken()
+                        data = posts.userPosts(token)
                         printMultiplePosts(width=width, height=height, midW=midW, midH=midH,data=data)
 
 
