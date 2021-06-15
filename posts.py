@@ -13,52 +13,19 @@ def allPosts():
     data = json.dumps(dictionary, indent=4)
 
     resp = requests.get(url, headers=headers, data=data)
-
     data = json.loads(resp.text)
-
-    #printJson(data['data'][0], 0)
-    #print(data['data'][0])
-    length = len(data['data'])
-    #print(length)
-    for x in range(length):
-        if len(data['data'][x][2])>75:
-            body = data['data'][x][2]
-            data['data'][x][2]  = body[:75] + '...'
-
-
-    t = Texttable()
-    data['data'].insert(0,['ID','Title','Body','Status'])
-    t.add_rows(data['data'])
-
-    print(t.draw())
+    return data['data']
 
 def userPosts(id):
     url = "https://blindcraft.pythonanywhere.com/news/api/getPost/"
 
     headers = CaseInsensitiveDict()
     headers["Content-Type"] = "application/json"
-
-    dictionary = {'typeOf':'Token '+id}
+    dictionary = {'typeOf':'Token 97df3c1257267b1331c2b3eda7e3c2db97a07ea3'}
     data = json.dumps(dictionary, indent=4)
-
-    print(data)
-
     resp = requests.get(url, headers=headers, data=data)
-
     data = json.loads(resp.text)
-
-    try:
-        length = len(data['data'])
-        for x in range(length):
-            if len(data['data'][x][2])>75:
-                body = data['data'][x][2]
-                data['data'][x][2]  = body[:75] + '...'
-
-        t = Texttable()
-        t.add_rows(data['data'].insert(0,['ID','Title','Body','Status']))
-        print(t.draw())
-    except:
-        print(data)
+    return data['data']
 
 def singlePost(id):
     url = "https://blindcraft.pythonanywhere.com/news/api/getPost/"

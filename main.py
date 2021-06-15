@@ -62,16 +62,19 @@ def menu():
     accountMenu = ["1 :- Info",  "2 :- Log Out", "b :- Back","e/exit :- Exit"]
     postMenu = ["1 :- New Post",  "2 :- List Posts", "3 :- Your Posts", "b :- Back","e/exit :- Exit"]
     currentMenu = mainMenu
+
     while True:
         string = ""
         (width,height) = getTerminalSize()
         height = height-1
+
         if prevWidth!=width or prevHeight!=height:
             changed=True
             prevWidth = width
             prevHeight = height
         midH = int(height/2)
         midW = int(width/2)
+
         if changed:
             changed = False
             choice = printMenu(width=width, height=height, midW=midW, midH=midH, strList=currentMenu, message="Enter your choice: ")
@@ -147,6 +150,18 @@ def menu():
                         sleep(3)
                         currentMenu = accountLIMenu
 
+                elif currentMenu == postMenu:
+                    if choice == "2":
+                        mesg = ["Loading..."]
+                        printMenu(width=width, height=height, midW=midW, midH=midH, strList=mesg)
+                        data = posts.allPosts()
+                        printMultiplePosts(width=width, height=height, midW=midW, midH=midH,data=data)
+                    elif choice == "3":
+                        mesg = ["Loading..."]
+                        printMenu(width=width, height=height, midW=midW, midH=midH, strList=mesg)
+                        data = posts.userPosts(""+getToken())
+                        printMultiplePosts(width=width, height=height, midW=midW, midH=midH,data=data)
+
 
 def printMenu(width, height, midW, midH, strList, message=None):
     clearConsole()
@@ -185,6 +200,42 @@ def validatePassword(password):
         if specialCharachter > 0 and word > 0 and number > 0 :
             return True
         return False
+
+def printMultiplePosts(width, height, midW, midH,data):
+    totalPosts = len(data)
+    pages = int(len(data)/6)
+    paginatedData = []
+    j = 0
+    for i in range(pages+1):
+        newData = []
+        for k in range(5):
+            newData.append(str(k+1)+": "+data[j][1])
+            j = j+1
+            if j>=totalPosts:
+                break
+        newData.append("n :- Next Page")
+        newData.append("p :- Previous Page")
+        newData.append("b :- Back")
+        newData.append("e/exit :- Exit")
+        paginatedData.append(newData)
+
+    currentPage = 0
+
+    while True:
+        mesg = paginatedData[currentPage]
+        choice = printMenu(width=width, height=height, midW=midW, midH=midH, strList=mesg, message="Enter your choice: ")
+        if choice == "b":
+            break
+        elif choice == "e" or choice == "exit":
+            sys.exit()
+        elif choice == "n":
+            currentPage += 1
+            if currentPage >= pages:
+                currentPage = pages
+        elif choice == "p":
+            currentPage -= 1
+            if currentPage <= 0:
+                currentPage = 0
 
 if __name__ == "__main__":
     main()
