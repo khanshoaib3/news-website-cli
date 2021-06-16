@@ -9,6 +9,8 @@ from keyboard_util import keyboardDisable
 from time import sleep
 import os
 import sys
+import subprocess
+import webbrowser
 
 token = ""
 
@@ -202,24 +204,82 @@ def validatePassword(password):
             return True
         return False
 
+def printSinglePost(width, height, midW, midH, postId, isAuthor=False):
+    printMenu(width=width, height=height, midW=midW, midH=midH, strList=["Loading..."])
+    data = posts.singlePost(postId)
+    minimalData = []
+    minimalData.append('Title: '+data[0][1])
+    minimalData.append('Slug: '+data[0][2])
+    minimalData.append('Status: '+data[0][9])
+    minimalData.append('Created on: '+data[0][7])
+    minimalData.append('Updated on: '+data[0][8])
+    minimalData.append('Published on: '+data[0][6])
+    if isAuthor:
+        minimalData.append('i:- Edit Post')
+    minimalData.append('o:- Open in browser')
+    minimalData.append('b:- Back')
+    minimalData.append('e/exit:- Exit')
+    while True:
+        mesg = minimalData
+        choice = printMenu(width=width, height=height, midW=midW, midH=midH, strList=mesg, message="Enter your choice: ")
+        if choice == "b":
+            break
+        elif choice == "e" or choice == "exit":
+            sys.exit()
+        elif choice == "o":
+            publish = data[0][6]+""
+            publish = publish[:publish.find('T')]
+            publish = publish.split('-')
+            year = publish[0]
+            month = publish[1]
+            day = publish[2]
+            slug = data[0][2]
+            url = f"https://blindcraft.pythonanywhere.com/news/{year}/{month}/{day}/{slug}"
+            if sys.platform=='win32':
+                os.startfile(url)
+            elif sys.platform=='darwin':
+                subprocess.Popen(['open', url])
+            else:
+                try:
+                    subprocess.Popen(['xdg-open', url])
+                except OSError:
+                    webbrowser.open_new(url)
+        elif isAuthor and choice == 'i':
+            pass
+
+
 def printMultiplePosts(width, height, midW, midH,data):
     totalPosts = len(data)
     pages = int(len(data)/6)
     paginatedData = []
+    postsInPage = []
     j = 0
-    for i in range(pages+1):
+    try:
+        for i in range(pages+1):
+            newData = []
+            postNumbers = []
+            for k in range(5):
+                newData.append(str(k+1)+": "+data[j][1])
+                postNumbers.append(str(k+1))
+                j = j+1
+                if j>=totalPosts:
+                    break
+            if i<pages:
+                newData.append("n :- Next Page")
+            if i>0:
+                newData.append("p :- Previous Page")
+            newData.append("b :- Back")
+            newData.append("e/exit :- Exit")
+            paginatedData.append(newData)
+            postsInPage.append(postNumbers)
+    except:
         newData = []
-        for k in range(5):
-            newData.append(str(k+1)+": "+data[j][1])
-            j = j+1
-            if j>=totalPosts:
-                break
-        newData.append("n :- Next Page")
-        newData.append("p :- Previous Page")
+        newData.append("No Posts")
         newData.append("b :- Back")
         newData.append("e/exit :- Exit")
         paginatedData.append(newData)
-
+        postsInPage = None
+        pages = 0
     currentPage = 0
 
     while True:
@@ -237,6 +297,10 @@ def printMultiplePosts(width, height, midW, midH,data):
             currentPage -= 1
             if currentPage <= 0:
                 currentPage = 0
+        elif postsInPage is not None:
+            if choice in postsInPage[currentPage]:
+                postIndex = ((currentPage*5) + int(choice))-1
+                printSinglePost(width=width, height=height, midW=midW, midH=midH, postId=data[postIndex][0])
 
 if __name__ == "__main__":
     main()

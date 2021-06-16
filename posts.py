@@ -37,9 +37,12 @@ def singlePost(id):
 
     data = json.dumps(dictionary, indent=4)
     resp = requests.get(url, headers=headers, data=data)
-
+    data = json.loads(resp.text)
     try:
-        data = json.loads(resp.text)
+        return data['data']
+    except:
+        return data
+    try:
 
         t = Texttable()
         data['data'].insert(0,['ID','Title','Slug','Body','Thumbnail','User ID','Publish','Created','Updated','Status'])
